@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add-to-Cart</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/animate.min.css">
+</head>
+
+<body>
+
+
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <h1>Online Shopping</h1>
+        </div>
+        <div class="icons">
+            <div class="add-icon" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="fas fa-plus-circle fa-lg"></i>
+            </div>
+            <div class="cart-icon" onclick="additems()" data-bs-toggle="offcanvas" data-bs-target="#demo"
+                aria-controls="offcanvasRight">
+                <i class="fas fa-shopping-cart fa-lg"></i>
+                <div class="cart-counter" id="cartCounter">0</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Product-list -->
+    <div class="container product-list-container">
+        <div class="row animate__animated animate__fadeInLeft" id="cardcontainer">
+
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Add Product:)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="#" method="post">
+                        <div class="form-group">
+                            <label>Product Name:</label>
+                            <input type="text" id="name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="text" id="price" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Colour:</label>
+                            <input type="text" id="color" class="form-control">
+                            <p id="nameerror"></p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="addProduct()" class="add-product btn btn-primary">Add Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Product That  Added -->
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="demo" aria-labelledby="cartTitle">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="cartTitle">Shopping Cart</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="cartItemsContainer">
+
+        </div>
+    </div>
+
+
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/wow.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        let arr = JSON.parse(localStorage.getItem("product")) || [];
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+
+        function addProduct() {
+            let name = document.getElementById("name").value;
+            let price = document.getElementById("price").value;
+            let color = document.getElementById("color").value;
+
+            let nameerror = document.getElementById("nameerror");
+            if (name === "" || price === "" || color === "") {
+                document.getElementById("nameerror").innerHTML = "Please enter all the details about the product.";
+                nameerror.style.color = "red";
+                return;
+            }
+
+            let data = {
+                name,
+                price,
+                color
+            };
+
+            arr.push(data);
+            localStorage.setItem("product", JSON.stringify(arr));
+            location.reload();
+        }
+
+        function redirectToCart() {
+            window.location.href = "cart.html";
+        }
+
+        function ProductData() {
+            let cardcontainer = document.getElementById("cardcontainer");
+
+            arr.map((val, index) => {
+                let card = document.createElement("div");
+                card.style = "width:18rem";
+
+                let cardCol = document.createElement("div");
+                cardCol.className = "col-sm-4";
+
+                card.innerHTML = `
+                    <div class="card" style="width: 350px;margin-top: 47px;">
+                        <img src="img/one+.png" class="card-img-top" alt="Product Image"  style="width: 180px; margin: 0 auto; margin-top:15px;">
+                        <div class="card-body" style="width: 350px;">
+                            <p class="card-title" style="font-size:18px;padding-left: 15px; padding-bottom:0">Mobile-Name: ${val.name}</p>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" style="border-bottom:none; font-size:18px; padding-bottom: 0; padding-top: 0" >Price: ${val.price}</li>
+                                <li class="list-group-item" style="font-size:20px; padding-bottom:20px;">Color: ${val.color}</li>
+                            </ul>
+                            
+                            <div class="d-flex justify-content-between"> 
+                                <button class="btn btn-primary btn-sm mr-2" onclick="add(${index})" style="padding:10px;">ADD</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})" style="padding:10px; margin-left:10px">DELETE</button>
+                                <button type="button" class="btn btn-success"  onclick="viewdata(${index})" style="padding:10px; margin-left:10px">EDIT</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                cardCol.appendChild(card);
+                cardcontainer.appendChild(cardCol);
+            });
+        }
+        ProductData();
+
+        function add(index) {
+            let additem = arr[index];
+            cart.push(additem);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert("Item added Successfully!!");
+            updateCartCounter();
+
+        }
+
+        function updateCartCounter() {
+            let cartCounter = document.getElementById("cartCounter");
+            let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+            cartCounter.textContent = cartItems.length;
+        }
+
+        updateCartCounter();
+
+        function deleteProduct(index) {
+            arr.splice(index, 1);
+            localStorage.setItem("product", JSON.stringify(arr));
+            location.reload();
+        }
+
+        function viewdata(index) {
+            let data = arr[index];
+            let modalId = `exampleModal${index}`;
+            let closeButtonId = `closeButton${index}`;
+
+            arr.map((val, idx) => {
+                let editproduct = document.createElement("div");
+                editproduct.innerHTML = `
+            <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header"> 
+                            <h5 style="color: blue;">UPDATE HERE :)</h5>
+                            <button type="button" class="btn-close" id="${closeButtonId}" data-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="updateForm">
+                                <div class="form-group">
+                                    <label for="updateName">Name:</label>
+                                    <input type="text" class="form-control" id="updateName" value="${data.name}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updatePrice">Price:</label>
+                                    <input type="text" class="form-control" id="updatePrice" value="${data.price}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateColor">Color:</label>
+                                    <input type="text" class="form-control" id="updateColor" value="${data.color}">
+                                </div>
+                            </form>
+                        </div>  
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="updateProduct(${index})">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+                document.body.appendChild(editproduct);
+
+
+                document.getElementById(closeButtonId).addEventListener('click', function () {
+                    $(`#${modalId}`).modal('hide');
+                });
+
+
+                $(`#${modalId}`).modal('show');
+            });
+        }
+
+        function updateProduct(index) {
+            let updateName = document.getElementById("updateName").value;
+            let updatePrice = document.getElementById("updatePrice").value;
+            let updateColor = document.getElementById("updateColor").value;
+
+            let data = {
+                name: updateName,
+                price: updatePrice,
+                color: updateColor
+            };
+
+            arr.splice(index, 1, data)
+            localStorage.setItem("product", JSON.stringify(arr));
+            location.reload();
+        }
+
+
+
+        function additems() {
+            let offcanvasElement = document.getElementById('demo');
+            let bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+            bsOffcanvas.show();
+        }
+
+        function add(index) {
+            let additem = arr[index];
+            cart.push(additem);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert("Item added Successfully!!");
+            updateCartCounter();
+            displayCartItems();
+        }
+
+        function displayCartItems() {
+            let cartItemsContainer = document.getElementById("cartItemsContainer");
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
+            } else {
+                cart.map((val, index) => {
+                    let cartItem = document.createElement("div");
+                    cartItem.className = "cart-item";
+                    cartItem.innerHTML = `
+                    <div class="card" style="width: 350px;margin-top: 47px;">
+                        <img src="img/one+.png" class="card-img-top" alt="Product Image"  style="width: 180px; margin: 0 auto; margin-top:15px;">
+                        <div class="card-body" style="width: 350px;">
+                            <p class="card-title" style="font-size:18px;padding-left: 15px; padding-bottom:0">Mobile-Name: ${val.name}</p>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" style="border-bottom:none; font-size:18px; padding-bottom: 0; padding-top: 0" >Price: ${val.price}</li>
+                                <li class="list-group-item" style="font-size:20px; padding-bottom:20px;">Color: ${val.color}</li>
+                            </ul>
+                            
+                            <div class="d-flex justify-content-between"> 
+                                <button class="btn btn-danger btn-sm" onclick="removeCartItem(${index})" style="padding:10px; margin-left:10px">REMOVE</button>
+                            </div>
+                        </div>
+                    </div>
+                <hr>
+            `;
+                    cartItemsContainer.appendChild(cartItem);
+                });
+            }
+        }
+
+        function removeCartItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            displayCartItems();
+            updateCartCounter();
+        }
+
+        function updateCartCounter() {
+            let cartCounter = document.getElementById("cartCounter");
+            let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+            cartCounter.textContent = cartItems.length;
+        }
+        displayCartItems()
+
+
+
+
+    </script>
+</body>
+
+</html>
